@@ -13,8 +13,8 @@
 			#main_graph { 
 				width: 84%;
 				height: 85%;
-				left: 0px;
-				bottom: 0px;
+				left: 10px;
+				bottom: 10px;
 				position: fixed;
 			}
 			#right {
@@ -25,42 +25,49 @@
 				float: left;
 				width: 84%;
 				height: 14%;
-				position: fixed;
 				left: 10px;
 				top: 10px;
+				position: fixed;
 			}
 		</style>
 		<script type="text/javascript">
 		$(document).ready( function( ){
 
-			main_graph	= { }
-			songs		= { }
-
-			// Hide all the items that should be hidden in the start.
+			// Hide things that should be hidden by default.
 			$(".hide").hide( );
+			
+			// The about dialog box.
+			$("#about").dialog( {	title: true,
+						draggable: false,
+						resizable: false,
+						minWidth: 400,
+						minHeight: 200,
+						autoOpen: false } );
 
-			// Enumerate the available options here.. somewhat modularized for other systems in the future.
-			options = [ "duration", "tempo", "liveness", "speechiness", "acousticness", "mode", "key", "energy", "time_signature", "loudness", "valence",  "danceability" ];
-
-			$("#about").dialog( { title: "About.", draggable: false, resizable: false, minWidth: 400, minHeight: 200, autoOpen: false } );
-
+			// Show the loading modal.
 			show_loading = function( cb ){
-				// Show the loading dialog and progress bar..
 				$("#loading").dialog( { modal: true,
-							title: "Loading..",
-							draggable: false, 
+							title: "Loading.",
+							draggable: false,
 							resizable: false,
 							minWidth: 400,
 							minHeight: 200 } );
-				$("#progressbar").progressbar( { value: false } );
+				$("#loading_progressbar").progressbar( { value: false } );
 				return cb( null );
 			}
 
+			// Destroy the loading modal.
 			hide_loading = function( cb ){
-				$("#progressbar").progressbar( "destroy" );
+				$("#loading_progressbar").progressbar( "destroy" );
 				$("#loading").dialog( "close" );
 				return cb( null );
 			}
+
+
+			main_graph	= { }
+			songs		= { }
+			// Enumerate the available options here.. somewhat modularized for other systems in the future.
+			options = [ "duration", "tempo", "liveness", "speechiness", "acousticness", "mode", "key", "energy", "time_signature", "loudness", "valence",  "danceability" ];
 
 			setup_canvas = function( cb ){
 				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Library Visualization" },
