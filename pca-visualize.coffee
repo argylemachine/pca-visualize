@@ -25,8 +25,8 @@ class server
 		@app.use express.static path.join __dirname, "static"
 
 		# Handle when we get a request for a list of attributes.
-		@app.get "/attributes", ( req, res ) ->
-			get_attributes ( err, attributes ) ->
+		@app.get "/attributes", ( req, res ) =>
+			@get_attributes ( err, attributes ) ->
 				if err
 					return _error_out res, err
 				res.json attributes
@@ -34,16 +34,18 @@ class server
 		# Handle when we're asked for PCA data.
 		# Note that the arguments 'filter' and 'attributes' are
 		# required, otherwise an error is returned.
-		@app.get "/pca", ( req, res ) ->
+		@app.get "/pca", ( req, res ) =>
 
 			# Force filter and attributes to be specified.
 			for required in [ "filter", "attributes" ]
-				if not req.body[required]?
-					return _error_out res, "Required field '#{required}' not specified."
+				if not req.query[required]?
+					return @_error_out res, "Required field '#{required}' not specified."
 
-			@get_data req.body.filter, req.body.attributes ( err, docs ) ->
+			@get_data req.query.filter, req.query.attributes, ( err, docs ) =>
 				if err
-					return _error_out res, "Unable to obtain documents containing attributes matching filter: #{err}"
+					return @_error_out res, "Unable to obtain documents containing attributes matching filter: #{err}"
+
+				res.json docs
 
 				# Normalize each attribute by subtracting average
 				# and dividing by standard deviation.
@@ -55,9 +57,13 @@ class server
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
 		# when reading.
-		get_data null, null, cb
+		@get_data null, null, cb
 
 	get_data: ( filters, attributes, cb ) ->
+
+		# Sanity check on the type of the attributes argument.
+		if attributes and ( typeof attributes is "string" or attributes.length < 2 )
+			return cb "More than one attribute must be specified."
 
 		# If the data that has been specified is a function, simply
 		# pass off to it.
@@ -70,7 +76,7 @@ class server
 		# return a list of attributes.
 		if not filters and not attributes
 			_r = [ ]
-			for data_obj in data
+			for data_obj in @data
 				_r.push key for key, val of data_obj when _r.indexOf( key ) < 0
 			return cb null, _r
 
@@ -82,6 +88,9 @@ class server
 			# Skip any document not matching filters..
 			skip = false
 			for key, val of filters
+
+				log "Filter key is #{key}"
+				log "Filter val is #{val}"
 				if data_obj[key] isnt val
 					skip = true
 					break
@@ -115,6 +124,8 @@ class server
 
 		@server.close ( ) ->
 			return cb null
+
+exports.server = server
 
 ###
 	app.get "/pca/basic", ( req, res ) ->
