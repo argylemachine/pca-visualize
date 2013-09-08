@@ -1,6 +1,8 @@
 ## About
 [pca-visualize](https://github.com/argylemachine/pca-visualize) is a web based visualization library. It is designed as a library, and is not useful on its own.
 
+## Usage
+TODO
 
 ## Installation
  * `npm install pca-visualize`.
