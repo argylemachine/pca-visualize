@@ -22,7 +22,28 @@ class server
 		# Basic express middleware.
 		@app.use express.logger( )
 		@app.use express.static path.join __dirname, "static"
+
+		# Handle when we get a request for a list of attributes.
+		@app.get "/attributes", ( req, res ) ->
+			get_attributes ( err, attributes ) ->
+				if err
+					return _error_out res, err
+				res.json attributes
+
+		# Handle when we're asked for PCA data.
+		# Note that the arguments 'filter' and 'attributes' are
+		# required, otherwise an error is returned.
+		@app.get "/pca", ( req, res ) ->
+			
+
+	get_attributes: ( cb ) ->
+		get_data null, null, cb
+
+	get_data: ( filter, attributes, cb ) ->
+		# If both filter and attributes are null,
+		# return a list of attributes.
 		
+	
 	_error_out: ( res, err ) ->
 		# Helper function for sending an error back.
 		res.json { "error": err }
@@ -42,30 +63,7 @@ class server
 		@server.close ( ) ->
 			return cb null
 
-
 ###
-
-	app.param "id", ( req, res, cb, id ) ->
-		runtime['db'].get id, ( err, doc ) ->
-			if err
-				return cb "not_found"
-			req.doc = doc
-			cb null
-
-	app.get "/songs", ( req, res ) ->
-		runtime['db'].view "songs/by-artist-and-title", ( err, docs ) ->
-			if err
-				return _error_out res, err
-
-			res.json (doc.value for doc in docs)
-
-	app.get "/artists", ( req, res ) ->
-		runtime['db'].view "songs/null-by-artist", { group: true, reduce: true }, ( err, docs ) ->
-			if err
-				return _error_out res, err
-
-			res.json ( doc.key for doc in docs )
-
 	app.get "/pca/basic", ( req, res ) ->
 		# This returns a list of objects.
 		# The objects contain track information, such as title, artist, as well
