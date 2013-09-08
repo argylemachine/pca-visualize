@@ -5,15 +5,23 @@ util		= require "util"
 http		= require "http"
 express		= require "express"
 sylvester	= require "sylvester"
+path		= require "path"
 
-class web_server
-	constructor: ( @port, @static_dir ) ->
+required_options = [ "port" ]
+
+class server
+	constructor: ( @options ) ->
+		
+		for required_option in required_options
+			if not @options[required_option]?
+				throw "Required option '#{required_option}' missing."
+
 		# Setup the initial application ( just express ).
 		@app = express( )
 
 		# Basic express middleware.
 		@app.use express.logger( )
-		@app.use express.static @static_dir
+		@app.use express.static path.join __dirname, "static"
 		
 	_error_out: ( res, err ) ->
 		# Helper function for sending an error back.
@@ -24,7 +32,7 @@ class web_server
 			return cb "Already started"
 		
 		@server = http.createServer @app
-		@server.listen @port, ( ) ->
+		@server.listen @options['port'], ( ) ->
 			return cb null
 
 	stop: ( cb ) ->
@@ -34,20 +42,8 @@ class web_server
 		@server.close ( ) ->
 			return cb null
 
-config	= { }
-runtime	= { }
 
-required_config = [ "port" ]
-
-start_webserver = ( cb ) ->
-
-	app = express( )
-
-	app.use express.logger( )
-	app.use express.static __dirname + "/static"
-
-	_error_out = ( res, err ) ->
-		res.json { "error": err }
+###
 
 	app.param "id", ( req, res, cb, id ) ->
 		runtime['db'].get id, ( err, doc ) ->
@@ -193,3 +189,4 @@ async.series [ ( cb ) ->
 
 
 
+###
