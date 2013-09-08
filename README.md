@@ -3,12 +3,13 @@
 
 ## Usage
 
-For a known finite set of data that isn't too huge
+For a known finite set of data that aren't too big.
 ```coffeescript
-log		= require( "logging" ).from __filename
-visualize	= require "pca-visualize"
+log        = require( "logging" ).from __filename
+visualize  = require "pca-visualize"
 
-data = [ { "type": "Person", age: 22, height: 178, name: "Robert" }, { "type": "Person", age: 14, height: 130, name: "Rob" } ]
+data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
+         { "type": "Person", age: 14, height: 130, name: "Rob" } ]
 
 server = new visualize.server { "port": 80, data: data }
 server.start ( err ) ->
@@ -20,8 +21,8 @@ server.start ( err ) ->
 
 For dynamic or large sets of data
 ```coffeescript
-log		= require( "logging" ).from __filename
-visualize	= require "pca-visualize"
+log        = require( "logging" ).from __filename
+visualize  = require "pca-visualize"
 
 server = new visualize.server { "port": 80 }
 
@@ -29,7 +30,8 @@ server = new visualize.server { "port": 80 }
 server.data = ( filter, attributes, cb ) ->
 	# Toy implementation. Really you would want to do an 
 	# async call or some such to obtain data and filter.
-	data = [ { "type": "Person", age: 22, height: 178, name: "Robert" }, { "type": "Person", age: 14, height: 130, name: "Rob" } ]
+	data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
+                 { "type": "Person", age: 14, height: 130, name: "Rob" } ]
 
 	valid_docs = [ ]
 	for data_obj in data
