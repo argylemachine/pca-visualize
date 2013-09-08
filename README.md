@@ -1,27 +1,12 @@
-About
-=====
-[pca-visualize](https://github.com/argylemachine/pca-visualize) is a web based visualization library.
+## About
+[pca-visualize](https://github.com/argylemachine/pca-visualize) is a web based visualization library. It is designed as a library, and is not useful on its own.
 
-This project is not intended to be used by itself. 
 
-Installation
-============
-### Requirements
- * [NodeJS](http://nodejs.org/) >= 0.10.7
+## Installation
+ * `npm install pca-visualize`.
 
-### Quick Overview
-* Check out the development version of [pca-visualize](https://github.com/argylemachine/pca-visualize)
-
- ```
- git clone https://github.com/argylemachine/pca-visualize.git
- cd pca-visualize
- git checkout develop
- ```
-
- * Modify config.json to suite.
- * Install required nodejs libraries. ( `npm install` ).
- * Run `start.coffee`.
-
-License
-=======
+## License
 The code in this project is under the MIT license, unless otherwise stated.
+
+## Credits
+A quick note that inspiration came from [music box](http://thesis.flyingpudding.com) by [Anita Lillie](http://flyingpudding.com/).
