@@ -26,12 +26,20 @@ visualize  = require "pca-visualize"
 
 server = new visualize.server { "port": 80 }
 
-# Every time the server needs to find data objects, this function is executed.
+# Every time the system needs to find data objects, or a list of attributes
+# this function is executed. 
 server.data = ( filter, attributes, cb ) ->
 	# Toy implementation. Really you would want to do an 
 	# async call or some such to obtain data and filter.
 	data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
              { "type": "Person", age: 14, height: 130, name: "Rob" } ]
+
+	# If no filter and attributes were specified, return a list of attributes.
+	if not filter and not attributes
+		_r = [ ]
+		for data_obj in data
+			_r.push key for key, val of data_obj when _r.indexOf( key ) < 0
+		return res.json _r
 
 	valid_docs = [ ]
 	for data_obj in data
