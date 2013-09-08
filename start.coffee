@@ -40,7 +40,16 @@ class server
 				if not req.body[required]?
 					return _error_out res, "Required field '#{required}' not specified."
 
-			# 
+			@get_data req.body.filter, req.body.attributes ( err, docs ) ->
+				if err
+					return _error_out res, "Unable to obtain documents containing attributes matching filter: #{err}"
+
+				# Normalize each attribute by subtracting average
+				# and dividing by standard deviation.
+
+				# Create matrix.
+
+				# Pass off to sylvester to pcaProject to 2 dimensions.
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
@@ -69,6 +78,7 @@ class server
 		_r = [ ]
 		for data_obj in @options['data']
 
+			# Skip any document not matching filters..
 			skip = false
 			for key, val of filters
 				if data_obj[key] isnt val
@@ -76,6 +86,8 @@ class server
 			if skip
 				continue
 
+			# Create a new object that only contains the attributes we
+			# care about. Push that to the return.
 			_o = { }
 			for attr in attributes
 				_o[attr] = data_obj[attr]
