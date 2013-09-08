@@ -10,8 +10,9 @@ path		= require "path"
 required_options = [ "port" ]
 
 class server
-	constructor: ( @options ) ->
+	constructor: ( @options, @data ) ->
 		
+		# Force particular options to be specified.
 		for required_option in required_options
 			if not @options[required_option]?
 				throw "Required option '#{required_option}' missing."
@@ -60,8 +61,8 @@ class server
 
 		# If the data that has been specified is a function, simply
 		# pass off to it.
-		if typeof @options['data'] is "function"
-			return @options['data'] filter, attributes, cb
+		if typeof @data is "function"
+			return @data filter, attributes, cb
 
 		# At this point we know we're dealing with a finite set of data.
 
@@ -76,13 +77,14 @@ class server
 		# If we've gotten here, there is at least a set of filters and attributes.
 		# As well we're dealing with an array of objects in @options['data'].
 		_r = [ ]
-		for data_obj in @options['data']
+		for data_obj in @data
 
 			# Skip any document not matching filters..
 			skip = false
 			for key, val of filters
 				if data_obj[key] isnt val
 					skip = true
+					break
 			if skip
 				continue
 

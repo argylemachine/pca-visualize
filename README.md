@@ -11,7 +11,7 @@ visualize  = require "pca-visualize"
 data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
          { "type": "Person", age: 14, height: 130, name: "Rob" } ]
 
-server = new visualize.server { "port": 80, data: data }
+server = new visualize.server { "port": 80 }, data
 server.start ( err ) ->
 	if err
 		log "Unable to start: #{err}"
@@ -24,11 +24,7 @@ For dynamic or large sets of data
 log        = require( "logging" ).from __filename
 visualize  = require "pca-visualize"
 
-server = new visualize.server { "port": 80 }
-
-# Every time the system needs to find data objects, or a list of attributes
-# this function is executed. 
-server.data = ( filter, attributes, cb ) ->
+server = new visualize.server { "port": 80 }, ( filter, attributes, cb ) ->
 	# Toy implementation. Really you would want to do an 
 	# async call or some such to obtain data and filter.
 	data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
