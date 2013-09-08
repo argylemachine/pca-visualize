@@ -31,7 +31,7 @@ server.data = ( filter, attributes, cb ) ->
 	# Toy implementation. Really you would want to do an 
 	# async call or some such to obtain data and filter.
 	data = [ { "type": "Person", age: 22, height: 178, name: "Robert" },
-                 { "type": "Person", age: 14, height: 130, name: "Rob" } ]
+             { "type": "Person", age: 14, height: 130, name: "Rob" } ]
 
 	valid_docs = [ ]
 	for data_obj in data
