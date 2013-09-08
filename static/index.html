@@ -76,7 +76,6 @@
 					for( var i in res ){
 						var attr = res[i];
 						new_html += "<tr><td><input checked='checked' type='checkbox' name='" + attr + "'></td><td>" + attr + "</td></tr>";
-						
 					}
 					new_html += "</table>";
 
@@ -95,26 +94,16 @@
 				} );
 			}
 
-			// Handle the entire process of updating the graph.
-			// This includes the logic around showing the modal
-			// as well as closing it.
+			// Helper function that takes care of showing the modal while the
+			// graph update is taking place.
 			update_graph = function( cb ){
-				async.series( [ show_loading,
-						update_documents,
-						function( cb ){
-							// Updates the graph by calling render.
-							graph.options.data = documents;
-							graph.render( );
-						},
-						hide_loading ],
-				function( err, res ){
-					return cb( null );
-				} );
+				async.series( [ show_loading, update_data, hide_loading ], cb );
 			}
 
-			// Make the request for documents.
-			// Note that this uses get_filters, get_attributes, and get_includes
-			update_documents = function( cb ){
+			// Make the request for data.
+			// Note that this uses get_filters, get_attributes, and get_includes.
+			// Also sets the graph data to the result, and calls the graph render.
+			update_data = function( cb ){
 				async.series( [ get_filters, get_attributes, get_includes ], function( err, res ){
 					if( err ){ return cb( err ); };
 
@@ -122,7 +111,10 @@
 						// If we got an error back from the pca request, cb with an error.
 						if( Object.keys( res ).indexOf( "error" ) >= 0 ){ return cb( res.error ); }
 						
-						documents = res;
+						// Set the response directly into the canvasjs graph object and call render.
+						graph.options.data = res;
+						graph.render( );
+
 						return cb( null );
 					} );
 				} );
