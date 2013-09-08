@@ -1,0 +1,17 @@
+{
+	"name": "music-player",
+	"description": "Music Player",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"coffee-script": "latest",
+		"logging": "latest",
+		"async": "latest",
+		"find": "latest",
+		"mp3info": "latest",
+		"cradle": "latest",
+		"echonest": "latest",
+		"express": "latest",
+		"sylvester": "latest"
+	}
+}
