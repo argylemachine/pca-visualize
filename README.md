@@ -19,7 +19,7 @@ server.start ( err ) ->
 ```
 
 For dynamic or large sets of data
-``coffeescript
+```coffeescript
 log		= require( "logging" ).from __filename
 visualize	= require "pca-visualize"
 
