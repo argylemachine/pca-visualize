@@ -1,16 +1,11 @@
 {
-	"name": "music-player",
-	"description": "Music Player",
+	"name": "pca-visualize",
+	"description": "PCA visualization library.",
 	"version": "0.0.1",
-	"private": true,
 	"dependencies": {
 		"coffee-script": "latest",
 		"logging": "latest",
 		"async": "latest",
-		"find": "latest",
-		"mp3info": "latest",
-		"cradle": "latest",
-		"echonest": "latest",
 		"express": "latest",
 		"sylvester": "latest"
 	}
