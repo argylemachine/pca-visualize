@@ -10,9 +10,13 @@
 		<script type="text/javascript">
 		$(document).ready( function( ){
 
+			// Define some global variables here.
+			graph		= { };
+			documents	= { };
+			
 			// Hide things that should be hidden by default.
 			$(".hide").hide( );
-			
+
 			// The about dialog box.
 			$("#about").dialog( {	title: true,
 						draggable: false,
@@ -20,6 +24,19 @@
 						minWidth: 400,
 						minHeight: 200,
 						autoOpen: false } );
+
+			// Helper tooltip function
+			tool_tip = function( e ){
+				data_point = e.entries[0].dataPoint;
+				
+				// Include in the tooltip any of the 'include' specifications.
+				_r = "";
+				includes = get_includes( );
+				for( var include in includes ){
+					_r += include + ": <b>" + includes[include] + "</b><br />";
+				}
+				return _r;
+			}
 
 			// Show the loading modal.
 			show_loading = function( cb ){
@@ -49,7 +66,7 @@
 				$.getJSON( "/attributes", function( res ){
 					
 					// If we get an error back, cb it out.
-					if( "error" in Object.keys( res ) ){
+					if( Object.keys( res ).indexOf( "error" ) >= 0 ){
 						return cb( res.error );
 					}
 
@@ -84,6 +101,11 @@
 			update_graph = function( cb ){
 				async.series( [ show_loading,
 						update_documents,
+						function( cb ){
+							// Updates the graph by calling render.
+							graph.options.data = documents;
+							graph.render( );
+						},
 						hide_loading ],
 				function( err, res ){
 					return cb( null );
@@ -97,63 +119,38 @@
 					if( err ){ return cb( err ); };
 
 					$.getJSON( "/pca", { "filter": res[0], "attributes": res[1], "includes": res[2] }, function( res ){
+						// If we got an error back from the pca request, cb with an error.
+						if( Object.keys( res ).indexOf( "error" ) >= 0 ){ return cb( res.error ); }
 						
+						documents = res;
+						return cb( null );
 					} );
 				} );
-				return cb( null );
 			}
 
-			main_graph	= { }
-			songs		= { }
-			// Enumerate the available options here.. somewhat modularized for other systems in the future.
-			options = [ "duration", "tempo", "liveness", "speechiness", "acousticness", "mode", "key", "energy", "time_signature", "loudness", "valence",  "danceability" ];
+			get_includes = function( cb ){
 
-			setup_canvas = function( cb ){
-				main_graph = new CanvasJS.Chart( "main_graph", {	"title": { "text": "Library Visualization" },
-											"data": { },
-											"toolTip": {
-												"content": function( e ){
-													// Rather than referencing this all the time..
-													_dp = e.entries[0].dataPoint;
-
-													// Define the return string that we'll concat to.
-													_return = "Title: <b>" + _dp["title"] + "</b><br />Artist: <b>" + _dp["artist"] + "</b><br />";
-
-													_selected_options = selected_options( );
-													// Iterate over the tooltip_options..
-													for( var i in _selected_options ){
-														tool_tip = _selected_options[i];
-														_return += tool_tip + ": " + _dp[tool_tip] + "<br />";
-													}
-													return _return;
-												}
-											},
-											"axisY": { "gridThickness": -1, "labelFontSize": -1 },
-											"axisX": { "gridThickness": -1, "labelFontSize": -1 } } );
-				main_graph.render( );
-				return cb( null );
+				// support both async and sync behaviour.
+				if( cb ){ return cb( null, _r ); }
+				return _r;
 			}
+
+			get_filters = function( cb ){
+
+			}
+
+			get_attributes = function( cb ){
 			
-			setup_options = function( cb ){
-
-				// Iterate through all the options and fill in the div..
-				$("#options").append( "<table id='options_table'>" );
-				for( var i=0; i<options.length; i++ ){
-					option = options[i];
-					$("#options_table").append( "<tr><td><input checked='checked' type='checkbox' name='" + option +"'></td><td>" + option + "</td></tr>" );
-				}
-				$("#options").append("</table>");
-
-				$("#options_table :checkbox").each( function( i, chkbox ){
-					$(chkbox).change( function( e ){
-						async.series( [ show_loading, clear_songs, load_songs, update_graph, hide_loading ], function( err, res ){
-							
-						} );
-					} );
-				} );
-
-				return cb( null );
 			}
+
+			graph = new CanvasJS.Chart( "graph", {	"title": { "text": "Visualization" },
+								"data": documents,
+								"toolTip": { "content": tool_tip },
+								"axisY": { "gridThickness": -1, "labelFontSize": -1 },
+								"axisX": { "gridThickness": -1, "labelFontSize": -1 } } )
+			graph.render( );
+
+
 
 			selected_options = function( ){
 				// This function returns a list of selected options.
