@@ -34,14 +34,20 @@ class server
 		# Note that the arguments 'filter' and 'attributes' are
 		# required, otherwise an error is returned.
 		@app.get "/pca", ( req, res ) ->
-			
+
+			# Force filter and attributes to be specified.
+			for required in [ "filter", "attributes" ]
+				if not req.body[required]?
+					return _error_out res, "Required field '#{required}' not specified."
+
+			# 
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
 		# when reading.
 		get_data null, null, cb
 
-	get_data: ( filter, attributes, cb ) ->
+	get_data: ( filters, attributes, cb ) ->
 
 		# If the data that has been specified is a function, simply
 		# pass off to it.
@@ -52,14 +58,30 @@ class server
 
 		# If both filter and attributes are null,
 		# return a list of attributes.
-		if not filter and not attributes
+		if not filters and not attributes
 			_r = [ ]
 			for data_obj in data
 				_r.push key for key, val of data_obj when _r.indexOf( key ) < 0
 			return cb null, _r
 
-		# If we've gotten here, there is at least a filter or attributes.
+		# If we've gotten here, there is at least a set of filters and attributes.
 		# As well we're dealing with an array of objects in @options['data'].
+		_r = [ ]
+		for data_obj in @options['data']
+
+			skip = false
+			for key, val of filters
+				if data_obj[key] isnt val
+					skip = true
+			if skip
+				continue
+
+			_o = { }
+			for attr in attributes
+				_o[attr] = data_obj[attr]
+			_r.push _o
+
+		cb null, _r
 
 	_error_out: ( res, err ) ->
 		# Helper function for sending an error back.
