@@ -1,0 +1,22 @@
+body {
+	font-family: Arial;
+}
+#main_graph { 
+	width: 84%;
+	height: 85%;
+	left: 10px;
+	bottom: 10px;
+	position: fixed;
+}
+#right {
+	float: right;
+	width: 15%;
+}
+#top{
+	float: left;
+	width: 84%;
+	height: 14%;
+	left: 10px;
+	top: 10px;
+	position: fixed;
+}
