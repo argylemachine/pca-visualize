@@ -2,10 +2,37 @@ log		= require( "logging" ).from __filename
 fs		= require "fs"
 async		= require "async"
 util		= require "util"
-find		= require "find"
 http		= require "http"
 express		= require "express"
 sylvester	= require "sylvester"
+
+class web_server
+	constructor: ( @port, @static_dir ) ->
+		# Setup the initial application ( just express ).
+		@app = express( )
+
+		# Basic express middleware.
+		@app.use express.logger( )
+		@app.use express.static @static_dir
+		
+	_error_out: ( res, err ) ->
+		# Helper function for sending an error back.
+		res.json { "error": err }
+
+	start: ( cb ) ->
+		if @server?
+			return cb "Already started"
+		
+		@server = http.createServer @app
+		@server.listen @port, ( ) ->
+			return cb null
+
+	stop: ( cb ) ->
+		if not @server?
+			return cb "Not started"
+
+		@server.close ( ) ->
+			return cb null
 
 config	= { }
 runtime	= { }
