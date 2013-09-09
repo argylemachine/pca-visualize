@@ -32,8 +32,9 @@
 				// Include in the tooltip any of the 'include' specifications.
 				_r = "";
 				includes = get_includes( );
-				for( var include in includes ){
-					_r += include + ": <b>" + includes[include] + "</b><br />";
+				for( var i in includes ){
+					include = includes[i];
+					_r += include + ": <b>" + data_point[include] + "</b><br />";
 				}
 				return _r;
 			}

@@ -105,6 +105,7 @@ class server
 
 	get_data: ( filters, attributes, includes, cb ) ->
 
+		log "filters: #{filters}, attributes: #{attributes}, includes: #{includes}"
 		# Sanity check on the type of the attributes argument.
 		if attributes and ( typeof attributes is "string" or attributes.length < 2 )
 			return cb "More than one attribute must be specified."
