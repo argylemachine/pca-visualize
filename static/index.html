@@ -58,9 +58,11 @@
 			}
 
 			// This function updates the attribute checkbox list.
+			// Note that it also updates the includes checkbox list as the data should be the same..
 			update_attributes = function( cb ){
 				// Clear any existing content in the attributes element.
 				$("#attributes").html( "" );
+				$("#includes").html( "" );
 
 				// Make a query for what attributes are available.
 				$.getJSON( "/attributes", function( res ){
@@ -82,6 +84,9 @@
 					// Set the new content. This is required so that we can then use a 
 					// jquery selector and handle when checkboxes are changed.
 					$("#attributes").html( new_html );
+
+					// Also update includes, as it is in effect the same as attributes..
+					$("#includes").html( new_html );
 			
 					// Iterate over each of the checkboxes we just defined in the new html.
 					$("#attributes :checkbox").each( function( i, chkbx ){
@@ -91,13 +96,30 @@
 							update_graph( function( ){ } );
 						} );
 					} );
+
+					// Hook into the change of state for the includes checkboxes.
+					$("#includes :checkbox").each( function( i, chkbx ){
+						$(chkbx).change( function( e ){
+							update_graph( function( ){ } );
+						} );
+					} );
+
+					return cb( );
 				} );
 			}
 
 			// Helper function that takes care of showing the modal while the
 			// graph update is taking place.
 			update_graph = function( cb ){
-				async.series( [ show_loading, update_data, hide_loading ], cb );
+				async.series( [ show_loading, update_data, hide_loading ], function( err, res ){
+
+					if( err ){
+						// Handle any errors that come up.
+						hide_loading( cb );
+					}
+
+					return cb( null );
+				} );
 			}
 
 			// Make the request for data.
@@ -107,20 +129,35 @@
 				async.series( [ get_filters, get_attributes, get_includes ], function( err, res ){
 					if( err ){ return cb( err ); };
 
-					$.getJSON( "/pca", { "filter": res[0], "attributes": res[1], "includes": res[2] }, function( res ){
+					query = $.getJSON( "/pca", { "filter": res[0], "attributes": res[1], "includes": res[2] } );
+
+					query.done( function( res ){
 						// If we got an error back from the pca request, cb with an error.
 						if( Object.keys( res ).indexOf( "error" ) >= 0 ){ return cb( res.error ); }
-						
-						// Set the response directly into the canvasjs graph object and call render.
-						graph.options.data = res;
+
+						documents = res;
+
+						// Set the data
+						graph.options.data = [ { type: "scatter", markerSize: 15, dataPoints: res } ];
 						graph.render( );
 
 						return cb( null );
+					} );
+
+					query.fail( function( res ){
+						return cb( res );
 					} );
 				} );
 			}
 
 			get_includes = function( cb ){
+				var includes = $("#includes :checkbox");
+				_r = [ ];
+				for( var i=0; i<includes.length; i++ ){
+					if( $(includes[i]).prop( "checked" ) ){
+						_r.push( $(includes[i]).attr("name") );
+					}
+				}
 
 				// support both async and sync behaviour.
 				if( cb ){ return cb( null, _r ); }
@@ -128,90 +165,36 @@
 			}
 
 			get_filters = function( cb ){
-
+				// TODO
+				return cb( null, [ ] );
 			}
 
 			get_attributes = function( cb ){
-			
+				var checkboxes = $("#attributes :checkbox");
+				_r = [ ];
+				for( var i=0; i<checkboxes.length; i++ ){
+					if( $(checkboxes[i] ).prop( "checked" ) ){
+						_r.push( $(checkboxes[i]).attr("name") );
+					}
+				}
+				
+				if( cb ){ return cb( null, _r ); }
+				return _r;
 			}
 
 			graph = new CanvasJS.Chart( "graph", {	"title": { "text": "Visualization" },
 								"data": documents,
 								"toolTip": { "content": tool_tip },
 								"axisY": { "gridThickness": -1, "labelFontSize": -1 },
-								"axisX": { "gridThickness": -1, "labelFontSize": -1 } } )
+								"axisX": { "gridThickness": -1, "labelFontSize": -1 } } );
+
+			// Render the graph for the first time. This is filled with empty data.
 			graph.render( );
-
-
-
-			selected_options = function( ){
-				// This function returns a list of selected options.
-				_r = [ ];
-				boxes = $("#options_table :checkbox");
-				for( var i=0; i<boxes.length; i++ ){
-					box = $(boxes[i]);
-					if( box.prop("checked") ){
-						_r.push( box.attr( "name" ) );
-					}
-				}
-				return _r;
-			}
-
-			clear_songs = function( cb ){
-				// Just a handy function that clears the songs we know about.
-				songs = { }
-				return cb( null );
-			}
-
-			load_songs = function( cb ){
-				// This function queries for the basic information.. it uses
-				// selected_options and sets the value of the global songs object.
-
-				_data		= { }
-				_data['pca']	= selected_options( );
-				$.ajax( "/pca/basic", { "data": _data,
-							"complete": function( res ){
-								songs = res.responseJSON;
-								return cb( null );
-							},
-							"error": function( err ){
-								return cb( err );
-							} } );
-			}
-
-			update_graph = function( cb ){
-				// This function updates the main graph with the contents of songs.
-
-				// Split songs up by artist..
-				data_by_artists = { };
-				for( var i in songs ){
-					var song		= songs[i];
-					if( Object.keys( data_by_artists ).indexOf( song.artist ) < 0 ){
-						data_by_artists[song.artist] = [ ];
-					}
-					
-					data_by_artists[song.artist].push( song );
-				}
-
-				_data = [ ];
-				for( var artist in data_by_artists ){
-					_data.push( {	type: "scatter",
-						markerSize: 15,
-						dataPoints: data_by_artists[artist],
-						click: function( e ){
-							$("#player").html( "Would play /song/" + e.dataPoint._id );
-						} } );
-				}
-
-				main_graph.options.data = _data
-				main_graph.render( );
-				return cb( null );
-			}
-
-			async.series( [ show_loading, setup_canvas, setup_options, load_songs, update_graph, hide_loading ], function( err, res ){
+			
+			// Do the initial startup..
+			async.series( [ show_loading, update_attributes, update_data, hide_loading ], function( err, res ){
 				
 			} );
-			
 		} );
 		</script>
 	</head>
@@ -220,20 +203,20 @@
 			Some top stuff.
 		</div>
 		<div id="about" class="hide">
-			<p>This is <a href='https://github.com/argylemachine/music-player'>music-player</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/music-player/develop/LICENSE'>MIT</a> license.</p>
-			<p>Original idea and inspiration came from <a href='http://thesis.flyingpudding.com/'>Music Box</a> by <a href='http://flyingpudding.com/'>Anita Shen Lillie</a>.</p>
+			<p>This is <a href='https://github.com/argylemachine/pca-visualize'>pca-visualize</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/pca-visualize/master/LICENSE'>MIT</a> license.</p>
 		</div>
 		<div id="right">
-			<div id="options"><h3>Attributes</h3></div>
+			<div id="attributes_container"><h3>Attributes</h3><div id="attributes"></div>
+			<div id="includes_container"><h3>Include</h3><div id="includes"></div></div>
 			<div id="menu">
 				<h3>Links</h3>
 				<ul>
 					<li><a href='#' onclick="$('#about').dialog('open');">About</a></li>
-					<li><a href='https://github.com/argylemachine/music-player'>Source Code</a></li>
+					<li><a href='https://github.com/argylemachine/pca-visualize'>Source Code</a></li>
 				</ul>
 			</div>
 		</div>
-		<div id="main_graph"></div>
+		<div id="graph"></div>
 		<div id="loading">
 			<div class="message">The hamsters are running. Hold on!</div>
 			<p><div id="progressbar"></div></p>

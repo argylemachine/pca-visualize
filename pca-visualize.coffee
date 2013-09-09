@@ -36,16 +36,26 @@ class server
 		# required, otherwise an error is returned.
 		@app.get "/pca", ( req, res ) =>
 
-			# Force filter and attributes to be specified.
-			for required in [ "filter", "attributes", "includes" ]
-				if not req.query[required]?
-					return @_error_out res, "Required field '#{required}' not specified."
+			if not req.query["attributes"]?
+				return @_error_out res, "Required field 'attributes' not specified."
+
+			# Optionally no filter or include.
+			if not req.query["filter"]?
+				req.query["filter"] = { }
+			if not req.query["attributes"]?
+				req.query["attributes"] = { }
 
 			@get_data req.query.filter, req.query.attributes, req.query.includes, ( err, docs ) =>
 				if err
-					return @_error_out res, "Unable to obtain documents containing attributes matching filter: #{err}"
+					return @_error_out res, "Unable to obtain documents containing attributes. Query: #{util.inspect req.query}"
 
-				res.json docs
+				_r = [ ]
+				for doc in docs
+					doc.x = Math.floor ( Math.random( ) * 100 ) + 1
+					doc.y = Math.floor ( Math.random( ) * 100 ) + 1
+					_r.push doc
+
+				res.json _r
 
 				# Normalize each attribute by subtracting average
 				# and dividing by standard deviation.
