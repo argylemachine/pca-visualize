@@ -42,6 +42,7 @@ class server
 			# Optionally no filter or include.
 			if not req.query["filter"]?
 				req.query["filter"] = { }
+
 			if not req.query["attributes"]?
 				req.query["attributes"] = { }
 
@@ -49,20 +50,53 @@ class server
 				if err
 					return @_error_out res, "Unable to obtain documents containing attributes. Query: #{util.inspect req.query}"
 
+				# Define holder objects for the means and standard deviations.
+				means			= { }
+				standard_deviations	= { }
+
+				# Go through all the attributes.
+				for attr in req.query.attributes
+
+					# Calculate the mean.
+					sum = 0
+					for doc in docs
+						sum += doc[attr]
+					means[attr] = sum / docs.length
+
+					# Calculate the standard deviation.
+					squared_diff_sum = 0
+					for doc in docs
+						squared_diff_sum += Math.pow( ( doc[attr] - means[attr] ), 2 )
+					standard_deviations[attr] = Math.sqrt( squared_diff_sum / docs.length )
+
+					# Normalize the attribute, shoving the new value into doc["normalized_"+attr]
+					for doc in docs
+						doc["normalized_" + attr] = doc[attr] - means[attr]
+						doc["normalized_" + attr] = doc["normalized_" + attr] / standard_deviations[attr]
+					
+				# Create matrix.
+				matrix = [ ]
+				for doc in docs
+					_i = [ ]
+					for attr in req.query.attributes
+						_i.push doc["normalized_" + attr]
+					matrix.push _i
+				
+				# Project into 2 dimensions..
+				svd	= sylvester.Matrix.create matrix
+				k	= svd.pcaProject 2
+			
+				# Shove the x and y attributes into the docs..
+				for i in [0..docs.length-1]
+					docs[i].x = k.Z.elements[i][0]
+					docs[i].y = k.Z.elements[i][1]
+				
 				_r = [ ]
 				for doc in docs
-					doc.x = Math.floor ( Math.random( ) * 100 ) + 1
-					doc.y = Math.floor ( Math.random( ) * 100 ) + 1
+					if not doc.x or not doc.y
+						continue
 					_r.push doc
-
 				res.json _r
-
-				# Normalize each attribute by subtracting average
-				# and dividing by standard deviation.
-
-				# Create matrix.
-
-				# Pass off to sylvester to pcaProject to 2 dimensions.
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
