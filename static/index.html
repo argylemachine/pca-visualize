@@ -28,11 +28,13 @@
 			// Helper tooltip function
 			tool_tip = function( e ){
 				data_point = e.entries[0].dataPoint;
-				
 				// Include in the tooltip any of the 'include' specifications.
-				_r = "";
 				includes = get_includes( );
-				for( var i in includes ){
+
+				// Also note that we define _r here because we call get_includes which itself defines
+				// _r.. yay for callbacks and hierarchy.
+				_r = "";
+				for( var i=0;i<includes.length;i++ ){
 					include = includes[i];
 					_r += include + ": <b>" + data_point[include] + "</b><br />";
 				}
@@ -133,6 +135,7 @@
 					query = $.getJSON( "/pca", { "filter": res[0], "attributes": res[1], "includes": res[2] } );
 
 					query.done( function( res ){
+						console.log( JSON.stringify( res ) );
 						// If we got an error back from the pca request, cb with an error.
 						if( Object.keys( res ).indexOf( "error" ) >= 0 ){ return cb( res.error ); }
 
