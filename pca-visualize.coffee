@@ -71,6 +71,13 @@ class server
 
 					# Normalize the attribute, shoving the new value into doc["normalized_"+attr]
 					for doc in docs
+					
+						# Edge case that the standard div is 0. As in, all the values
+						# are the same. We don't want to return NaN.
+						if standard_deviations[attr] is 0
+							doc["normalized_" + attr] = 0
+							continue
+
 						doc["normalized_" + attr] = doc[attr] - means[attr]
 						doc["normalized_" + attr] = doc["normalized_" + attr] / standard_deviations[attr]
 					
@@ -81,7 +88,7 @@ class server
 					for attr in req.query.attributes
 						_i.push doc["normalized_" + attr]
 					matrix.push _i
-				
+
 				# Project into 2 dimensions..
 				svd	= sylvester.Matrix.create matrix
 				k	= svd.pcaProject 2
