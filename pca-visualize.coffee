@@ -36,6 +36,7 @@ class server
 		# required, otherwise an error is returned.
 		@app.get "/pca", ( req, res ) =>
 
+			# Force attributes to have been specified.
 			if not req.query["attributes"]?
 				return @_error_out res, "Required field 'attributes' not specified."
 
@@ -126,7 +127,8 @@ class server
 		if typeof @data is "function"
 			return @data filter, attributes, cb
 
-		# At this point we know we're dealing with a finite set of data.
+		# TODO add logic here regarding checking the type of
+		# the attributes that have been specified. Force 'number'.
 
 		# If both filter and attributes are null,
 		# return a list of attributes.
