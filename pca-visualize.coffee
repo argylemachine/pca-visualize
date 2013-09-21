@@ -76,12 +76,12 @@ class server
 						# Edge case that the standard div is 0. As in, all the values
 						# are the same. We don't want to return NaN.
 						if standard_deviations[attr] is 0
-							doc["normalized_" + attr] = 0
+							doc["normalized_" + attr] = doc[attr]
 							continue
 
 						doc["normalized_" + attr] = doc[attr] - means[attr]
 						doc["normalized_" + attr] = doc["normalized_" + attr] / standard_deviations[attr]
-					
+				
 				# Create matrix.
 				matrix = [ ]
 				for doc in docs
@@ -98,7 +98,7 @@ class server
 				for i in [0..docs.length-1]
 					docs[i].x = k.Z.elements[i][0]
 					docs[i].y = k.Z.elements[i][1]
-				
+
 				_r = [ ]
 				for doc in docs
 					if not doc.x or not doc.y

@@ -6,9 +6,6 @@ data = [ 	{ "type": "Person", age: 22, height: 178, weight: 140, name: "Rob" },
 		{ "type": "Animal", age: 1, height: 36, weight: 140, name: "Dog" },
 		{ "type": "Animal", age: 3, height: 20, weight: 140, name: "Cat" } ]
 
-# Example: /pca?filter[type]=Person&attributes=age&attributes=height&include=name
-# Example: /pca?filter[type]=Animal&attributes=age&attributes=height&include=name
-
 server = new visualize.server { "port": 1339 }, data
 
 server.start ( err ) ->
