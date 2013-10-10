@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Bootstrap 101 Template</title>
+        <title>Please Login</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <style>
@@ -37,8 +37,8 @@
         <div class="container">
             <form class="form-signin">
                 <h2 class="form-signin-heading">Please Sign In</h2>
-                <input type="text" class="input-block-level" placeholder="Username (try guest)">
-                <input type="password" class="input-block-level" placeholder="Password (try guest)">
+                <input type="text" class="input-block-level" placeholder="Username" id="username">
+                <input type="password" class="input-block-level" placeholder="Password" id="password">
                 <label class="checkbox">
                     <input type="checkbox" value="remember-me"> Remember me
                 </label>
@@ -46,10 +46,20 @@
             </form>
         </div>
         <script src="/lib/jquery.min.js"></script>
+	<script src="/lib/jquery-ui.min.js"></script>
         <script src="/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
-	$(".form-signin").submit( function( event ){
-		alert( "I got form click." );
+	$(document).ready( function( ){
+		$(".form-signin").submit( function( event ){
+			event.preventDefault( );
+			$.getJSON( "/login", { "username": $("#username").val(), "password": $("#password").val() }, function( login_success ){
+				if( login_success === true ){
+					window.location.replace( "/main.html" );
+				}else{
+					$(".form-signin-heading").effect( "shake" );
+				}
+			} );
+		} );
 	} );
 	</script>
     </body>

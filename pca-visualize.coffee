@@ -47,6 +47,9 @@ class server
 		@app.get "/", logged_in, load_user, ( req, res ) ->
 			res.redirect "/main.html"
 
+		@app.get "/login", ( req, res ) ->
+			res.json false
+
 		@app.get "/attributes", ( req, res ) =>
 			@get_attributes ( err, attributes ) ->
 				if err
