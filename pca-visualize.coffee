@@ -60,18 +60,29 @@ class server
 
 					# Calculate the mean.
 					sum = 0
+					_length = docs.length
 					for doc in docs
-						sum += doc[attr]
-					means[attr] = sum / docs.length
+						if not doc[attr]?
+							_length--
+							continue
 
+						sum += doc[attr]
+					means[attr] = sum / _length
+					
 					# Calculate the standard deviation.
 					squared_diff_sum = 0
 					for doc in docs
+						if not doc[attr]?
+							continue
 						squared_diff_sum += Math.pow( ( doc[attr] - means[attr] ), 2 )
-					standard_deviations[attr] = Math.sqrt( squared_diff_sum / docs.length )
+
+					standard_deviations[attr] = Math.sqrt( squared_diff_sum / _length )
 
 					# Normalize the attribute, shoving the new value into doc["normalized_"+attr]
 					for doc in docs
+
+						if not doc[attr]?
+							continue
 					
 						# Edge case that the standard div is 0. As in, all the values
 						# are the same. We don't want to return NaN.
@@ -81,10 +92,20 @@ class server
 
 						doc["normalized_" + attr] = doc[attr] - means[attr]
 						doc["normalized_" + attr] = doc["normalized_" + attr] / standard_deviations[attr]
-				
+
+				# Create a valid_docs array, ones that contain all the normalized values we're going to use.
+				valid_docs = [ ]
+				for doc in docs
+					_valid_doc = true
+					for attr in req.query.attributes
+						if not doc["normalized_"+attr]?
+							_valid_doc = false
+					if _valid_doc
+						valid_docs.push doc
+
 				# Create matrix.
 				matrix = [ ]
-				for doc in docs
+				for doc in valid_docs
 					_i = [ ]
 					for attr in req.query.attributes
 						_i.push doc["normalized_" + attr]
@@ -95,12 +116,12 @@ class server
 				k	= svd.pcaProject 2
 			
 				# Shove the x and y attributes into the docs..
-				for i in [0..docs.length-1]
-					docs[i].x = k.Z.elements[i][0]
-					docs[i].y = k.Z.elements[i][1]
+				for i in [0..valid_docs.length-1]
+					valid_docs[i].x = k.Z.elements[i][0]
+					valid_docs[i].y = k.Z.elements[i][1]
 
 				_r = [ ]
-				for doc in docs
+				for doc in valid_docs
 					if not doc.x or not doc.y
 						continue
 					_r.push doc

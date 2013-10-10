@@ -60,12 +60,13 @@
 				return cb( null );
 			}
 
-			// This function updates the attribute checkbox list.
-			// Note that it also updates the includes checkbox list as the data should be the same..
-			update_attributes = function( cb ){
+			// Update the options. This includes attributes, includes, and filters.
+			update_options = function( cb ){
+
 				// Clear any existing content in the attributes element.
 				$("#attributes").html( "" );
 				$("#includes").html( "" );
+				$("#filters").html( "" );
 
 				// Make a query for what attributes are available.
 				$.getJSON( "/attributes", function( res ){
@@ -80,16 +81,14 @@
 					new_html = "<table>";
 					for( var i in res ){
 						var attr = res[i];
-						new_html += "<tr><td><input checked='checked' type='checkbox' name='" + attr + "'></td><td>" + attr + "</td></tr>";
+						new_html += "<tr><td><input type='checkbox' checked='checked' name='" + attr + "'></td><td>" + attr + "</td></tr>";
 					}
 					new_html += "</table>";
 
-					// Set the new content. This is required so that we can then use a 
-					// jquery selector and handle when checkboxes are changed.
+					// Set the new content.
 					$("#attributes").html( new_html );
-
-					// Also update includes, as it is in effect the same as attributes..
 					$("#includes").html( new_html );
+					$("#filters").html( new_html );
 			
 					// Iterate over each of the checkboxes we just defined in the new html.
 					$("#attributes :checkbox").each( function( i, chkbx ){
@@ -102,6 +101,15 @@
 
 					// Hook into the change of state for the includes checkboxes.
 					$("#includes :checkbox").each( function( i, chkbx ){
+
+						$(chkbx).change( function( e ){
+							update_graph( function( ){ } );
+						} );
+					} );
+
+					// Uncheck the filters by default. Also setup the on click..
+					$("#filters :checkbox").each( function( i, chkbx ){
+						$(chkbx).prop( "checked", null );
 						$(chkbx).change( function( e ){
 							update_graph( function( ){ } );
 						} );
@@ -196,7 +204,7 @@
 			graph.render( );
 			
 			// Do the initial startup..
-			async.series( [ show_loading, update_attributes, update_data, hide_loading ], function( err, res ){
+			async.series( [ show_loading, update_options, update_data, hide_loading ], function( err, res ){
 				
 			} );
 		} );
@@ -210,7 +218,8 @@
 			<p>This is <a href='https://github.com/argylemachine/pca-visualize'>pca-visualize</a>. It is released open source under the <a href='https://raw.github.com/argylemachine/pca-visualize/master/LICENSE'>MIT</a> license.</p>
 		</div>
 		<div id="right">
-			<div id="attributes_container"><h3>Attributes</h3><div id="attributes"></div>
+			<div id="filters_container"><h3>Filters</h3><div id="filters"></div></div>
+			<div id="attributes_container"><h3>Attributes</h3><div id="attributes"></div></div>
 			<div id="includes_container"><h3>Include</h3><div id="includes"></div></div>
 			<div id="menu">
 				<h3>Links</h3>
