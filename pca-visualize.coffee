@@ -48,6 +48,8 @@ class server
 			res.redirect "/main.html"
 
 		@app.get "/login", ( req, res ) ->
+			if req.query.username is "guest" and req.query.password is "guest"
+				return res.json true
 			res.json false
 
 		@app.get "/attributes", ( req, res ) =>
