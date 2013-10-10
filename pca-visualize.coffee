@@ -22,10 +22,19 @@ class server
 
 		# Basic express middleware.
 		@app.use express.logger( )
+        @app.use express.compress( )
+        @app.use express.cookieParser "pca"
+        @app.use express.cookieSession( )
+        @app.use express.json( )
 		@app.use express.static path.join __dirname, "static"
 
+        # Make any requests destined for /pca/* hvae a valid user, and load
+        # the user into the request object as well.
+        @app.all "/pca/*", @logged_in, @load_user
+
+
 		# Handle when we get a request for a list of attributes.
-		@app.get "/attributes", ( req, res ) =>
+        @app.get "/pca/attributes", ( req, res ) =>
 			@get_attributes ( err, attributes ) ->
 				if err
 					return _error_out res, err
@@ -34,7 +43,7 @@ class server
 		# Handle when we're asked for PCA data.
 		# Note that the arguments 'filter' and 'attributes' are
 		# required, otherwise an error is returned.
-		@app.get "/pca", ( req, res ) =>
+		@app.get "/pca", @logged_in, ( req, res ) =>
 
 			# Force attributes to have been specified.
 			if not req.query["attributes"]?
@@ -126,6 +135,8 @@ class server
 						continue
 					_r.push doc
 				res.json _r
+
+    logged_in: ( 
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
