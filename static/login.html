@@ -3,7 +3,7 @@
     <head>
         <title>Bootstrap 101 Template</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="file:///home/robert/src/pca-visualize/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <style>
         body {
             padding-top: 40px;
@@ -36,16 +36,21 @@
     <body>
         <div class="container">
             <form class="form-signin">
-                <h2 class="form-signin-heading">Please Sign in</h2>
-                <input type="text" class="input-block-level" placeholder="Email address">
-                <input type="password" class="input-block-level" placeholder="Password">
+                <h2 class="form-signin-heading">Please Sign In</h2>
+                <input type="text" class="input-block-level" placeholder="Username (try guest)">
+                <input type="password" class="input-block-level" placeholder="Password (try guest)">
                 <label class="checkbox">
                     <input type="checkbox" value="remember-me"> Remember me
                 </label>
                 <button class="btn btn-large btn-primary" type="submit">Sign in</button>
             </form>
         </div>
-        <script src="http://code.jquery.com/jquery.js"></script>
-        <script src="file:///home/robert/src/pca-visualize/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/lib/jquery.min.js"></script>
+        <script src="/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	$(".form-signin").submit( function( event ){
+		alert( "I got form click." );
+	} );
+	</script>
     </body>
 </html>

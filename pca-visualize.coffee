@@ -1,5 +1,5 @@
-log		= require( "logging" ).from __filename
-fs		= require "fs"
+log = require( "logging" ).from __filename
+fs = require "fs"
 async		= require "async"
 util		= require "util"
 http		= require "http"
@@ -21,38 +21,33 @@ class server
 		# Setup the initial application ( just express ).
 		@app = express( )
 
-        # Some middleware functions to help out express.
-        logged_in = ( req, res, cb ) ->
-            # Check if the user is logged in.
-            # If they aren't then redirect them to the
-            # login page.
-            cb null
+		# Some middleware functions to help out express.
+		logged_in = ( req, res, cb ) ->
+			if not req.session.user?
+				return res.redirect "/login.html"
+			cb null
 
-        load_user = ( req, res, cb ) ->
-            cb null
+		load_user = ( req, res, cb ) ->
+			cb null
 
 		# Basic express middleware.
 		@app.use express.logger( )
-        @app.use express.compress( )
-        @app.use express.cookieParser "pca"
-        @app.use express.cookieSession( )
-        @app.use express.json( )
-		@app.use express.static path.join __dirname, "static"
+		@app.use express.compress( )
+		@app.use express.cookieParser "pca"
+		@app.use express.cookieSession( )
+		@app.use express.json( )
 
-        # Handle an errors..
-        @app.use ( err, req, res, cb ) ->
-            log err.stack
-            res.send 500, "Ack, Internal error."
-            
-        # Make any requests destined for /pca/* hvae a valid user, and load
-        # the user into the request object as well.
-        @app.all "/pca/*", logged_in, load_user
+		# Handle errors.
+		@app.use ( err, req, res, cb ) ->
+			log err.stack
+			res.send 500, "Error! Sorry bout this."
+		
+		@app.all "/api/*", logged_in, load_user
+		
+		@app.get "/", logged_in, load_user, ( req, res ) ->
+			res.redirect "/main.html"
 
-        @app.get "/", logged_in, load_user, ( req, res ) ->
-            
-
-		# Handle when we get a request for a list of attributes.
-        @app.get "/pca/attributes", ( req, res ) =>
+		@app.get "/attributes", ( req, res ) =>
 			@get_attributes ( err, attributes ) ->
 				if err
 					return _error_out res, err
@@ -61,7 +56,7 @@ class server
 		# Handle when we're asked for PCA data.
 		# Note that the arguments 'filter' and 'attributes' are
 		# required, otherwise an error is returned.
-		@app.get "/pca", @logged_in, ( req, res ) =>
+		@app.get "/pca", logged_in, ( req, res ) =>
 
 			# Force attributes to have been specified.
 			if not req.query["attributes"]?
@@ -153,6 +148,8 @@ class server
 						continue
 					_r.push doc
 				res.json _r
+		
+		@app.use express.static path.join __dirname, "static"
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
