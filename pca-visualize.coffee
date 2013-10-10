@@ -17,8 +17,19 @@ class server
 			if not @options[required_option]?
 				throw "Required option '#{required_option}' missing."
 
+
 		# Setup the initial application ( just express ).
 		@app = express( )
+
+        # Some middleware functions to help out express.
+        logged_in = ( req, res, cb ) ->
+            # Check if the user is logged in.
+            # If they aren't then redirect them to the
+            # login page.
+            cb null
+
+        load_user = ( req, res, cb ) ->
+            cb null
 
 		# Basic express middleware.
 		@app.use express.logger( )
@@ -28,10 +39,17 @@ class server
         @app.use express.json( )
 		@app.use express.static path.join __dirname, "static"
 
+        # Handle an errors..
+        @app.use ( err, req, res, cb ) ->
+            log err.stack
+            res.send 500, "Ack, Internal error."
+            
         # Make any requests destined for /pca/* hvae a valid user, and load
         # the user into the request object as well.
-        @app.all "/pca/*", @logged_in, @load_user
+        @app.all "/pca/*", logged_in, load_user
 
+        @app.get "/", logged_in, load_user, ( req, res ) ->
+            
 
 		# Handle when we get a request for a list of attributes.
         @app.get "/pca/attributes", ( req, res ) =>
@@ -135,8 +153,6 @@ class server
 						continue
 					_r.push doc
 				res.json _r
-
-    logged_in: ( 
 
 	get_attributes: ( cb ) ->
 		# Helper function so that code makes logical sense
