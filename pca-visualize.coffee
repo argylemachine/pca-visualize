@@ -27,15 +27,13 @@ class server
 				return res.redirect "/login.html"
 			cb null
 
-		load_user = ( req, res, cb ) ->
-			cb null
-
 		# Basic express middleware.
 		@app.use express.logger( )
 		@app.use express.compress( )
 		@app.use express.cookieParser "pca"
 		@app.use express.cookieSession( )
 		@app.use express.json( )
+		@app.use express.urlencoded( )
 
 		# Handle errors.
 		@app.use ( err, req, res, cb ) ->
@@ -47,36 +45,52 @@ class server
 		@app.get "/", logged_in, load_user, ( req, res ) ->
 			res.redirect "/main.html"
 
+		# Simple login message
 		@app.get "/login", ( req, res ) ->
 			if req.query.username is "guest" and req.query.password is "guest"
+				req.session.user = req.query.username
 				return res.json true
 			res.json false
 
-		@app.get "/attributes", ( req, res ) =>
+		# Get the attributes that are available.
+		@app.get "/api/attributes", ( req, res ) =>
 			@get_attributes ( err, attributes ) ->
 				if err
-					return _error_out res, err
+					res.json false
 				res.json attributes
 
-		# Handle when we're asked for PCA data.
-		# Note that the arguments 'filter' and 'attributes' are
-		# required, otherwise an error is returned.
-		@app.get "/pca", logged_in, ( req, res ) =>
+		# Set the attributes we want to use.
+		@app.post "/api/attributes", ( req, res ) ->
+			req.session.filters = req.body.attributes
+			res.json true
 
-			# Force attributes to have been specified.
-			if not req.query["attributes"]?
-				return @_error_out res, "Required field 'attributes' not specified."
+		# Get our current filters.
+		@app.get "/api/filters", ( req, res ) ->
+			res.json req.session.filters
 
-			# Optionally no filter or include.
-			if not req.query["filter"]?
-				req.query["filter"] = { }
+		# Set our filters.
+		@app.post "/api/filters", ( req, res ) ->
+			# TODO
+			# Parse req.body.filters
+			# Set req.session.filters
+			res.json true
 
-			if not req.query["attributes"]?
-				req.query["attributes"] = { }
+		# Get our includes
+		@app.get "/api/includes", ( req, res ) ->
+			res.json req.session.includes
+		
+		# Set our includes
+		@app.post "/api/includes", ( req, res ) ->
+			req.session.includes = req.body.includes
 
-			@get_data req.query.filter, req.query.attributes, req.query.includes, ( err, docs ) =>
+		# Get PCA data.
+		# Note that we make use of req.session.filters,
+		# req.session.attributes, and req.session.includes
+		@app.get "/api/data", ( req, res ) ->
+			@get_data req.session.filters, req.session.attributes, req.session.includes, ( err, docs ) =>
 				if err
-					return @_error_out res, "Unable to obtain documents containing attributes. Query: #{util.inspect req.query}"
+					res.json false
+					return
 
 				# Define holder objects for the means and standard deviations.
 				means			= { }
