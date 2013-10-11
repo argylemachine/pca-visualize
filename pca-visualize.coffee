@@ -40,9 +40,9 @@ class server
 			log err.stack
 			res.send 500, "Error! Sorry bout this."
 		
-		@app.all "/api/*", logged_in, load_user
+		@app.all "/api/*", logged_in
 		
-		@app.get "/", logged_in, load_user, ( req, res ) ->
+		@app.get "/", logged_in, ( req, res ) ->
 			res.redirect "/main.html"
 
 		# Simple login message
@@ -51,6 +51,12 @@ class server
 				req.session.user = req.query.username
 				return res.json true
 			res.json false
+
+		# Simple query for user information.
+		@app.get "/api/user", ( req, res ) ->
+			log "GOT HERE"
+			log "Sending #{req.session.username}"
+			res.json { "username": req.session.username }
 
 		# Get the attributes that are available.
 		@app.get "/api/attributes", ( req, res ) =>
@@ -82,11 +88,12 @@ class server
 		# Set our includes
 		@app.post "/api/includes", ( req, res ) ->
 			req.session.includes = req.body.includes
+			res.json true
 
 		# Get PCA data.
 		# Note that we make use of req.session.filters,
 		# req.session.attributes, and req.session.includes
-		@app.get "/api/data", ( req, res ) ->
+		@app.get "/api/data", ( req, res ) =>
 			@get_data req.session.filters, req.session.attributes, req.session.includes, ( err, docs ) =>
 				if err
 					res.json false

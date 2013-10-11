@@ -15,14 +15,9 @@
     </head>
     <body>
         <div class="container">
-		<!--<div class="masthead">
-			<ul class="nav nav-justified">
-				<li class="active"><a href="#">Main</a></li>
-				<li><a href="#">About</a></li>
-				<li><a href="#">Account</a></li>
-				<li><a href="#">Logout</a></li>
-			</ul>
-		</div>-->
+		<div class="masthead">
+		Hi <span id="username"></span>
+		</div>
 		<div id="graph"></div>
 		<div class="row">
 			<div class="col-lg-4">
@@ -36,21 +31,45 @@
 				<p><a class="btn btn-primary" href="#">Change Attributes</a></p>
 			</div>
 			<div class="col-lg-4">
-				<h2>Mouseover</h2>
+				<h2>Mouseover Includes</h2>
 				<p>What items do you want to shove in mouseover?</p>
-				<p><a class="btn btn-primary" href="#">Change Mouseover</a></p>
+				<p><a class="btn btn-primary" href="#">Change Includes</a></p>
 			</div>
 		</div>
-		<!--<div class="footer">
-			<p>This is footer.</p>
-		</div>-->
         </div>
         <script src="/lib/jquery.min.js"></script>
 	<script src="/lib/jquery-ui.min.js"></script>
+	<script src="/lib/async.js"></script>
         <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 	$(document).ready( function( ){
+		var username	= "Unknown User";
+		var filters	= [ ];
+		var attributes	= [ ];
+		var includes	= [ ];
 
+		$("#username").html( username );
+
+		// Get the User ID, as well as the default filters, attributes, and includes.
+		async.map( [ "user", "filters", "attributes", "includes" ], function( what, cb ){
+			$.getJSON( "/api/" + what, function( data ){
+				console.log( "GOT HERE" );
+				if( data == false ){
+					return cb( "Unable to get " + what );
+				}
+				return cb( null, data );
+			} );
+		}, function( err, res ){
+			if( err ){
+				return console.log( "Unable to grab defaults: " + err );
+			}
+			username	= res[0].username;
+			filters		= res[1];
+			attributes	= res[2];
+			includes	= res[3];
+
+			$("#username").html( username );
+		} );
 	} );
 	</script>
     </body>
