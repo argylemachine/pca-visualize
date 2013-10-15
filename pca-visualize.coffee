@@ -23,7 +23,7 @@ class server
 
 		# Some middleware functions to help out express.
 		logged_in = ( req, res, cb ) ->
-			if not req.session.user?
+			if not req.session.username?
 				return res.redirect "/login.html"
 			cb null
 
@@ -48,14 +48,12 @@ class server
 		# Simple login message
 		@app.get "/login", ( req, res ) ->
 			if req.query.username is "guest" and req.query.password is "guest"
-				req.session.user = req.query.username
+				req.session.username = req.query.username
 				return res.json true
 			res.json false
 
 		# Simple query for user information.
 		@app.get "/api/user", ( req, res ) ->
-			log "GOT HERE"
-			log "Sending #{req.session.username}"
 			res.json { "username": req.session.username }
 
 		# Get the attributes that are available.
