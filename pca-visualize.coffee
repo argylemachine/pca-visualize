@@ -24,7 +24,7 @@ class server
 		# Some middleware functions to help out express.
 		logged_in = ( req, res, cb ) ->
 			if not req.session.username?
-				return res.redirect "/login.html"
+				return res.json { "error": "Permission Denied" }
 			cb null
 
 		# Basic express middleware.
@@ -40,6 +40,7 @@ class server
 			log err.stack
 			res.send 500, "Error! Sorry bout this."
 		
+		# Force all /api calls to be from an authenticated user.
 		@app.all "/api/*", logged_in
 		
 		@app.get "/", logged_in, ( req, res ) ->
