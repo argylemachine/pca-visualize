@@ -36,7 +36,7 @@
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Filters <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li class="dropdown-header">Filters</li>
-							<li><a href="#">Change Filters</a></li>
+							<li><a href="#">Change Selection Filters</a></li>
 							<li><a href="#">Change Display Filters</a></li>
 						</ul>
 					</li>
@@ -57,13 +57,13 @@
 							<li class="dropdown-header">Documentation</li>
 							<li><a href="#">Custom Attributes</a></li>
 							<li><a href="#">Weighting Attributes</a></li>
-							<li><a href="#">Filters</a></li>
+							<li><a href="#">Selection Filters</a></li>
 							<li><a href="#">Display Filters</a></li>
 						</ul>
 					</li>
           			</ul>
 				<form class="navbar-right navbar-form">
-					<button type="submit" class="btn btn-danger">Reset Session</button>
+					<button type="submit" class="btn btn-danger" id="reset_session">Reset Session</button>
 				</form>
 			</div>
       		</div>
@@ -79,7 +79,41 @@
         <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 	$(document).ready( function( ){
-		
+
+		show_working_modal = function( cb ){
+			
+		}
+
+		hide_working_modal = function( cb ){
+			
+		}
+
+		update_attributes = function( cb ){
+			
+		}
+
+		update_filters = function( cb ){
+			
+		}
+
+		update_everything = function( cb ){
+			
+		}
+
+		render_graph = function( cb ){
+			
+		}
+
+		// Make the call to reset the session..
+		$("#reset_session").submit( function( event ){
+			async.series( [ show_working_modal, function( cb ){
+				// Make the http call to kill the session.
+
+				cb( null );
+			}, update_everything, render_graph, hide_working_modal ], function( err, cb ){
+				
+			} );
+		} );
 	} );
 	</script>
     </body>
