@@ -104,16 +104,25 @@
 			
 		}
 
+		/*
 		// Make the call to reset the session..
 		$("#reset_session").submit( function( event ){
 			async.series( [ show_working_modal, function( cb ){
 				// Make the http call to kill the session.
+				$.getJSON( "/logout", function( response ){
+					if( response == true ){
+						cb( null );
+					}else{
+						cb( response );
+					}
+				} );
 
-				cb( null );
 			}, update_everything, render_graph, hide_working_modal ], function( err, cb ){
 				
 			} );
 		} );
+		*/
+		
 	} );
 	</script>
     </body>
