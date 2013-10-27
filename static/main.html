@@ -138,6 +138,21 @@
 			return cb( null );
 		}
 
+		get_attributes = function( cb ){
+			// Make a request for what attributes are available.
+			// Update the HTML side of things with any additions / removals.
+			$.getJSON( "/api/attributes", function( attributes ){
+
+				// Iterate over each attribute..
+				async.eachSeries( attributes, function( attribute, cb ){
+					// Check if the attribute exists in the HTML dom.
+					// if it does simply call cb..
+					// If not, add it to the dom and then call cb.
+					return cb( null );
+				}, cb );
+			} );
+		}
+
 		// Make the call to reset the session..
 		$("#reset_session").click( function( event ){
 			async.series( [ show_working_modal, function( cb ){
@@ -174,10 +189,8 @@
 
 		// Inital login and query for particulars.
 		async.series( [ show_working_modal, function( cb ){
-			setTimeout( function( ){
 				login( "guest", "guest", cb );
-			}, 2000 );
-		}, hide_working_modal ], function( err, res ){
+		}, get_attributes, hide_working_modal ], function( err, res ){
 			if( err ){
 				return console.log( "Startup error: " + err );
 			}
