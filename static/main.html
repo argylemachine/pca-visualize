@@ -102,8 +102,34 @@
 			return cb( null );
 		}
 
-		render_graph = function( cb ){
-			
+		login = function( username, password, cb ){
+			// Try and login with the username and password specified.
+			$.getJSON( "/login", { "username": username, "password": password }, function( result ){
+				if( result == true ){
+					return cb( null );
+				}else{
+					return cb( result );
+				}
+			} );
+
+			// TOOD - note that we don't catch HTTP request fail.. 
+		}
+
+		update_graph = function( cb ){
+			// Setup a data object that conforms to canvasjs specs.
+			// Then set it into the graph object, and call .render.
+
+			// Note that this does not do any filtering.. any data that is
+			// currently in data_points will be shown.
+
+			_data = { 	type: "scatter",
+					markerSize: 15,
+					dataPoints: data_points }
+
+			graph.options.data = _data;
+			graph.render( );
+
+			return cb( null );
 		}
 
 		/*
@@ -138,6 +164,16 @@
 						} );
 
 		graph.render( );
+
+		// Inital login and query for particulars.
+		async.series( [ function( cb ){
+			login( "guest", "guest", cb );
+		} ], function( err, res ){
+			if( err ){
+				return console.log( "Startup error: " + err );
+			}
+			console.log( "Finished startup!" );
+		} );
 
 	} );
 	</script>
