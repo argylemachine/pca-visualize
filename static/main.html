@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="/bootstrap/dist/css/bootstrap.css" rel="stylesheet" media="screen">
 	<link href="/lib/jumbotron.css" rel="stylesheet">
+	<link href="lib/jquery-ui.min.css" rel="stylesheet">
 	<style type="text/css" rel="stylesheet">
 	#graph {
 		width: 100%;
@@ -62,15 +63,20 @@
 						</ul>
 					</li>
           			</ul>
-				<form class="navbar-right navbar-form">
-					<button type="submit" class="btn btn-danger" id="reset_session">Reset Session</button>
-				</form>
+				<div class="navbar-right navbar-form">
+					<div class="btn btn-danger" id="reset_session">Reset Session</div>
+				</div>
 			</div>
       		</div>
     	</div>
 
 	<div class="jumbotron">
 		<div id="graph"></div>
+	</div>
+
+	<div id="working">
+		<div class="message">We're working.. hang tight.</div>
+		<div class="progressbar"></div>
 	</div>
 
         <script src="/lib/jquery.min.js"></script>
@@ -132,24 +138,25 @@
 			return cb( null );
 		}
 
-		/*
 		// Make the call to reset the session..
-		$("#reset_session").submit( function( event ){
+		$("#reset_session").click( function( event ){
 			async.series( [ show_working_modal, function( cb ){
 				// Make the http call to kill the session.
 				$.getJSON( "/logout", function( response ){
 					if( response == true ){
-						cb( null );
+
+						// Login as guest again..
+						login( "guest", "guest", cb );
+
 					}else{
 						cb( response );
 					}
 				} );
 
-			}, update_everything, render_graph, hide_working_modal ], function( err, cb ){
+			}, hide_working_modal ], function( err, cb ){
 				
 			} );
 		} );
-		*/
 	
 		// Initial setup of the canvasjs graph.	
 		graph = new CanvasJS.Chart( "graph", {	"title": { "text": "What?" },
@@ -166,9 +173,11 @@
 		graph.render( );
 
 		// Inital login and query for particulars.
-		async.series( [ function( cb ){
-			login( "guest", "guest", cb );
-		} ], function( err, res ){
+		async.series( [ show_working_modal, function( cb ){
+			setTimeout( function( ){
+				login( "guest", "guest", cb );
+			}, 2000 );
+		}, hide_working_modal ], function( err, res ){
 			if( err ){
 				return console.log( "Startup error: " + err );
 			}

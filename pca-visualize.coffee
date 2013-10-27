@@ -53,6 +53,18 @@ class server
 				return res.json true
 			res.json false
 
+		@app.get "/logout", ( req, res ) ->
+
+			# If someone isn't already logged in..
+			if not req.session.username?
+				return res.json false
+			
+			# Kill the session.
+			req.session = null
+
+			# Return true :)
+			res.json true
+
 		# Simple query for user information.
 		@app.get "/api/user", ( req, res ) ->
 			res.json { "username": req.session.username }
