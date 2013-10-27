@@ -234,6 +234,8 @@ class server
 			if skip
 				continue
 
+			log "Using data object #{util.inspect data_obj}"
+
 			# Create a new object that only contains the attributes we
 			# care about. Push that to the return.
 			_o = { }

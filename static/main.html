@@ -70,10 +70,18 @@
       		</div>
     	</div>
 
+	<!-- Main graph area... -->
 	<div class="jumbotron">
 		<div id="graph"></div>
 	</div>
 
+	<!-- The bottom bits for attributes / filtering and such -->
+	<div id="attribute">
+		<ul id="attribute-list">
+		</ul>
+	</div>
+
+	<!-- Loading / working modal .. usually hidden -->
 	<div id="working">
 		<div class="message">We're working.. hang tight.</div>
 		<div class="progressbar"></div>
@@ -142,12 +150,25 @@
 			// Make a request for what attributes are available.
 			// Update the HTML side of things with any additions / removals.
 			$.getJSON( "/api/attributes", function( attributes ){
+				console.log( "I got attributes of " + JSON.stringify( attributes ) );
 
 				// Iterate over each attribute..
 				async.eachSeries( attributes, function( attribute, cb ){
-					// Check if the attribute exists in the HTML dom.
-					// if it does simply call cb..
-					// If not, add it to the dom and then call cb.
+					// Check if the attribute exists in the HTML dom. Add it if it isn't.
+					current_attributes	= $("#attributes :checkbox");
+					found_attribute	= false
+					for( var i=0; i<current_attributes.length; i++ ){
+						if( $(current_attributes[i]).attr( "name" ) == attribute ){
+							found_attribute = true;
+							break;
+						}
+					}
+
+					// Didn't find the attribute in the dom.. add it.
+					if( !found_attribute ){
+						$("#attribute-list").append( "<li><input type='checkbox' name='" + attribute + "'></li>" );
+					}
+
 					return cb( null );
 				}, cb );
 			} );
