@@ -155,7 +155,7 @@
 				// Iterate over each attribute..
 				async.eachSeries( attributes, function( attribute, cb ){
 					// Check if the attribute exists in the HTML dom. Add it if it isn't.
-					current_attributes	= $("#attributes :checkbox");
+					current_attributes	= $("#attribute-list :checkbox");
 					found_attribute	= false
 					for( var i=0; i<current_attributes.length; i++ ){
 						if( $(current_attributes[i]).attr( "name" ) == attribute ){
@@ -166,7 +166,7 @@
 
 					// Didn't find the attribute in the dom.. add it.
 					if( !found_attribute ){
-						$("#attribute-list").append( "<li><input type='checkbox' name='" + attribute + "'></li>" );
+						$("#attribute-list").append( "<li><input type='checkbox' name='" + attribute + "'>" + attribute + "</li>" );
 					}
 
 					return cb( null );
