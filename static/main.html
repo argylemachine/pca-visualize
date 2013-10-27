@@ -76,28 +76,30 @@
         <script src="/lib/jquery.min.js"></script>
 	<script src="/lib/jquery-ui.min.js"></script>
 	<script src="/lib/async.js"></script>
+	<script src="/lib/canvasjs.min.js"></script>
         <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 	$(document).ready( function( ){
 
 		show_working_modal = function( cb ){
-			
+			$("#working").dialog( { modal: true,
+						title: "Working..",
+						draggable: false,
+						resizable: false,
+						minWidth: 400,
+						minHeight: 200 } );
+			$("#working .progressbar").progressbar( { value: false } );
+			return cb( null );
 		}
 
 		hide_working_modal = function( cb ){
-			
-		}
+			// Destroy the progressbar ui.. 
+			$("#working .progressbar").progressbar( "destroy" );
 
-		update_attributes = function( cb ){
-			
-		}
+			// Close the working modal.
+			$("#working").dialog( "close" );
 
-		update_filters = function( cb ){
-			
-		}
-
-		update_everything = function( cb ){
-			
+			return cb( null );
 		}
 
 		render_graph = function( cb ){
@@ -122,7 +124,21 @@
 			} );
 		} );
 		*/
-		
+	
+		// Initial setup of the canvasjs graph.	
+		graph = new CanvasJS.Chart( "graph", {	"title": { "text": "What?" },
+							"data": { },
+							"toolTip": {
+								"content": function( e ){
+									return "Some information about the point..";
+								}
+							},
+							"axisY": { "gridThickness": -1, "labelFontSize": -1 },
+							"axisX": { "gridThickness": -1, "labelFontSize": -1 }
+						} );
+
+		graph.render( );
+
 	} );
 	</script>
     </body>
