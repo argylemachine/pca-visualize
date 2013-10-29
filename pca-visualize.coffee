@@ -78,27 +78,7 @@ class server
 
 		# Set the attributes we want to use.
 		@app.post "/api/attributes", ( req, res ) ->
-			req.session.filters = req.body.attributes
-			res.json true
-
-		# Get our current filters.
-		@app.get "/api/filters", ( req, res ) ->
-			res.json req.session.filters
-
-		# Set our filters.
-		@app.post "/api/filters", ( req, res ) ->
-			# TODO
-			# Parse req.body.filters
-			# Set req.session.filters
-			res.json true
-
-		# Get our includes
-		@app.get "/api/includes", ( req, res ) ->
-			res.json req.session.includes
-		
-		# Set our includes
-		@app.post "/api/includes", ( req, res ) ->
-			req.session.includes = req.body.includes
+			req.session.attributes = req.body.attributes
 			res.json true
 
 		# Get PCA data.
