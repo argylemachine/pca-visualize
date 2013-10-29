@@ -15,6 +15,10 @@
 	.jumbotron {
 		background-color: #ffffff;
 	}
+	#footer {
+		width: 100%;
+		height: 50px;
+	}
 	</style>
     </head>
     <body>
@@ -75,10 +79,12 @@
 		<div id="graph"></div>
 	</div>
 
-	<!-- The bottom bits for attributes / filtering and such -->
-	<div id="attribute">
-		<ul id="attribute-list">
-		</ul>
+	<div id="footer">
+		<!-- The bottom bits for attributes / filtering and such -->
+		<div id="attribute">
+			<ul id="attribute-list">
+			</ul>
+		</div>
 	</div>
 
 	<!-- Loading / working modal .. usually hidden -->
@@ -150,7 +156,6 @@
 			// Make a request for what attributes are available.
 			// Update the HTML side of things with any additions / removals.
 			$.getJSON( "/api/attributes", function( attributes ){
-				console.log( "I got attributes of " + JSON.stringify( attributes ) );
 
 				// Iterate over each attribute..
 				async.eachSeries( attributes, function( attribute, cb ){
@@ -168,6 +173,17 @@
 					if( !found_attribute ){
 						$("#attribute-list").append( "<li><input type='checkbox' name='" + attribute + "'>" + attribute + "</li>" );
 					}
+
+					// Now create the hook when the checkbox gets clicked.. I'm lazy, so I do it here for each checkbox
+					// rather than a single event handler with all checkboxes with a given selector.
+					$("#attribute-list :checkbox [name='" + attribute + "']").change( function( ){
+						// Update our data, then update our graph.
+						async.series( [ show_working_modal, update_data, update_graph, hide_working_modal ], function( err, res ){
+							if( err ){
+								console.log( "Couldn't handle attribute click: " + err );
+							}
+						} );
+					} );
 
 					return cb( null );
 				}, cb );
