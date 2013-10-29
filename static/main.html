@@ -112,6 +112,8 @@
 
 		$(".hide").hide();
 
+		data_points	= { };
+
 		show_working_modal = function( cb ){
 			$("#working").dialog( { modal: true,
 						title: "Working..",
@@ -120,7 +122,12 @@
 						minWidth: 400,
 						minHeight: 200 } );
 			$("#working .progressbar").progressbar( { value: false } );
-			return cb( null );
+
+			// Just a quick HACK to make sure that 
+			// I know the modal is working properly.
+			setTimeout( function( ){
+				return cb( null );
+			}, 1000 );
 		}
 
 		hide_working_modal = function( cb ){
@@ -158,6 +165,8 @@
 					var checkbox = attribute_checkboxes[i];
 					
 				}
+
+				cb( null );
 
 			}, get_data, draw_graph, hide_working_modal ], cb );
 		}

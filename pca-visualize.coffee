@@ -1,5 +1,5 @@
-log = require( "logging" ).from __filename
-fs = require "fs"
+log		= require( "logging" ).from __filename
+fs		= require "fs"
 async		= require "async"
 util		= require "util"
 http		= require "http"
@@ -7,6 +7,7 @@ express		= require "express"
 sylvester	= require "sylvester"
 path		= require "path"
 
+# Only a port is required as far as configuration goes.
 required_options = [ "port" ]
 
 class server
@@ -85,6 +86,11 @@ class server
 		# Note that we make use of req.session.filters,
 		# req.session.attributes, and req.session.includes
 		@app.get "/api/data", ( req, res ) =>
+
+			# hack right now to get rid of filters and includes.
+			req.session.filters	= { }
+			req.session.includes	= { }
+
 			@get_data req.session.filters, req.session.attributes, req.session.includes, ( err, docs ) =>
 				if err
 					res.json false
