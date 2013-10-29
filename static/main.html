@@ -147,6 +147,28 @@
 		}
 
 		update_graph = function( cb ){
+			// This takes care of grabbing all the values from the HTML dom
+			// and then updating the data. It then calls draw_graph as well.
+			async.series( [ show_working_modal, function( cb ){
+				// Grab all the attributes from the DOM and make sure we set
+				// those server side..
+
+				attribute_checkboxes = $("#attribute-list :checkbox");
+				for( var i in attribute_checkboxes ){
+					var checkbox = attribute_checkboxes[i];
+					
+				}
+
+			}, get_data, draw_graph, hide_working_modal ], cb );
+		}
+
+		get_data = function( cb ){
+			// Make the call to get data from the server, and shove it into data_points
+			// TODO
+			return cb( null );
+		}
+
+		draw_graph = function( cb ){
 			// Setup a data object that conforms to canvasjs specs.
 			// Then set it into the graph object, and call .render.
 
@@ -189,11 +211,7 @@
 					// rather than a single event handler with all checkboxes with a given selector.
 					$($("#attribute-list [name='" + attribute + "']")[0]).change( function( ){
 						// Update our data, then update our graph.
-						async.series( [ show_working_modal, update_data, update_graph, hide_working_modal ], function( err, res ){
-							if( err ){
-								console.log( "Couldn't handle attribute click: " + err );
-							}
-						} );
+						update_graph( function( ){} );
 					} );
 
 					return cb( null );
