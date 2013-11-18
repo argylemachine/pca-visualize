@@ -44,7 +44,7 @@ class server
 		# Force all /api calls to be from an authenticated user.
 		@app.all "/api/*", logged_in
 		
-		@app.get "/", logged_in, ( req, res ) ->
+		@app.get "/", ( req, res ) ->
 			res.redirect "/main.html"
 
 		# Simple login message

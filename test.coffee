@@ -13,4 +13,4 @@ server.start ( err ) ->
         log "Unable to start the server: #{err}"
         process.exit 1
 
-    log "Started the server"
+    log "Started the server."
